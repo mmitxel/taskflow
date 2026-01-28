@@ -113,15 +113,37 @@ class DBManager:
             t = Tarea(
                 titulo=fila['titulo'],
                 fecha_limite=fila['fecha_creacion'],
-                fecha_creacion=fila['fecha_creacion'],
+                #fecha_creacion=fila['fecha_creacion'],
                 prioridad=fila['prioridad'],
                 proyecto_id=fila['proyecto_id'],
                 estado=fila['estado'],
-                descripcion=fila['descripcion']
+                descripcion=fila['descripcion'],
+                id = fila["id"]
             )
             tareas.append(t)
 
         return tareas
+
+    def actualizar_tarea_estado(self, tarea_id: int, nuevo_estado: str) -> bool:
+        """
+        Actualiza el estado de una tarea específica en la DB.
+        """
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Sentencia SQL para actualizar UN solo campo de UN solo registro (UPDATE)
+        cursor.execute("""
+                       UPDATE tareas
+                       SET estado=?
+                       WHERE id = ?
+                       """, (nuevo_estado, tarea_id))
+
+        # Validamos si se actualizó algún registro
+        updated = cursor.rowcount > 0
+
+        conn.commit()
+        conn.close()
+        return updated
 
 
 if __name__ == '__main__':
